@@ -1,5 +1,8 @@
 # CF-Recommender
-A simple cf problem reccomender that was covers QOL features missing in other recommendation systems.
+A simple cf problem reccomender that covers QOL features missing in other recommendation systems.
+
+![alt text](image.png)
+
 ## Features
 * Create Problem Sets based on parameters -> year range, include exclude tags, and rating.
 * Choice between ThemeCP Levels or a rating range and number of problems
@@ -13,4 +16,5 @@ A simple cf problem reccomender that was covers QOL features missing in other re
 * The stop watch system gives me less anxiety while still keeping time pressure.
 * You can save your sets, which allows for easy revisit of your problems.
 
-The website is all client side, so make sure to export/import your data.
+The website is all client side, and data is stored in the browser cache, so make sure to export/import your data when changing browsers. Do make backups as deleting the site data will reset the cache and hence your saved sets.
+

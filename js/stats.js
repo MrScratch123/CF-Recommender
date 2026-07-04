@@ -175,11 +175,8 @@ const Stats = (() => {
       const y = padding.top + gap + i * (barH + gap);
       const barW = (value / maxVal) * chartW;
 
-      // Gradient bar
-      const grad = ctx.createLinearGradient(padding.left, 0, padding.left + barW, 0);
-      grad.addColorStop(0, options.color || '#6366f1');
-      grad.addColorStop(1, options.colorEnd || '#818cf8');
-      ctx.fillStyle = grad;
+      // Solid white bar
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.roundRect(padding.left, y, barW, barH, [0, 4, 4, 0]);
       ctx.fill();

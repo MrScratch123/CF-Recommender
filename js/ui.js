@@ -10,6 +10,7 @@ const UI = (() => {
   let allTags = [];
   let userAnalysis = null;
   let allProblems = [];
+  let activeVirtualSet = null;
 
   // ─── Initialize ────────────────────────────────────────────
 
@@ -56,6 +57,13 @@ const UI = (() => {
     const radio = document.querySelector(`input[name="theme-mode"][value="${prefs.themeMode}"]`);
     if (radio) radio.checked = true;
 
+    if (prefs.includeTags) {
+      prefs.includeTags.forEach(t => selectedIncludeTags.add(t));
+    }
+    if (prefs.excludeTags) {
+      prefs.excludeTags.forEach(t => selectedExcludeTags.add(t));
+    }
+
     _updateThemeModeUI(prefs.themeMode);
   }
 
@@ -69,7 +77,9 @@ const UI = (() => {
       excludeAttempted: document.getElementById('exclude-attempted').checked,
       excludeContests: document.getElementById('exclude-contests').checked,
       showTags: document.getElementById('show-tags-toggle').checked,
-      themeMode: document.querySelector('input[name="theme-mode"]:checked')?.value || 'random'
+      themeMode: document.querySelector('input[name="theme-mode"]:checked')?.value || 'random',
+      includeTags: Array.from(selectedIncludeTags),
+      excludeTags: Array.from(selectedExcludeTags)
     };
     Storage.savePreferences(prefs);
     return prefs;
@@ -285,6 +295,8 @@ const UI = (() => {
         chipsContainer.appendChild(chip);
       }
     }
+    
+    renderChips(); // Render any initially loaded tags
 
     function addTag(tag) {
       if (selectedSet.has(tag)) return;
@@ -603,7 +615,7 @@ const UI = (() => {
       createdAt: Date.now(),
       tag: currentThemeTag,
       elapsedMs: 0,
-      problems: currentProblems.map(p => ({ ...p, solvedTimeMs: null }))
+      problems: currentProblems.map(p => ({ ...p }))
     };
     
     _switchTab('virtual');
@@ -639,21 +651,6 @@ const UI = (() => {
     Utils.showToast('Virtual Set resumed');
   }
 
-  function toggleSetTimer(setId) {
-    const sets = Storage.getSavedSets();
-    const set = sets.find(s => s.id === setId);
-    if (!set) return;
-    
-    if (set.isRunning) {
-      set.isRunning = false;
-      set.elapsedMs = (set.elapsedMs || 0) + (Date.now() - set.lastStartedAt);
-    } else {
-      set.isRunning = true;
-      set.lastStartedAt = Date.now();
-    }
-    Storage.saveSets(sets);
-    _renderSavedSets();
-  }
 
 
   function _renderVirtualSet() {
@@ -754,7 +751,6 @@ const UI = (() => {
                 <div class="saved-problem-row ${isSolved ? 'saved-problem-row--solved' : ''}">
                   <a href="${url}" target="_blank" class="saved-problem-row__name">${p.contestId}${p.index} — ${p.name}</a>
                   <span class="saved-problem-row__rating ${ratingClass}">${p.rating}</span>
-                  <span class="solved-time">${p.solvedTimeMs ? Utils.formatTime(p.solvedTimeMs) : ''}</span>
                 </div>
               `;
             }).join('')}
@@ -1020,12 +1016,6 @@ const UI = (() => {
   }
 
 
-  function lapProblem(btn) {
-    const time = Stopwatch.getFormattedTime();
-    const lapDisplay = btn.nextElementSibling;
-    if (lapDisplay) lapDisplay.textContent = time;
-  }
-
   function _bindStopwatch() {
     document.getElementById('btn-virtual-pause')?.addEventListener('click', (e) => {
       const btn = e.target;
@@ -1075,7 +1065,6 @@ const UI = (() => {
     deleteSet,
     startVirtualSet,
     resumeVirtualSet,
-    lapProblem,
     refreshStats,
   };
 })();

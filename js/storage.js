@@ -200,6 +200,8 @@ const Storage = (() => {
       excludeContests: true,
       themeMode: 'random',
       selectedTag: '',
+      includeTags: [],
+      excludeTags: [],
     };
   }
 

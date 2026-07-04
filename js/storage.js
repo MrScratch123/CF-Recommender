@@ -14,7 +14,6 @@ const Storage = (() => {
     USER_SUBMISSIONS_TS: 'cf_user_submissions_ts_', // + handle
     SAVED_SETS: 'cf_saved_sets',
     FAVORITES: 'cf_favorites',
-    HISTORY: 'cf_recommendation_history',
     PREFERENCES: 'cf_user_preferences',
   };
 
@@ -169,24 +168,6 @@ const Storage = (() => {
     return getFavorites().some(f => Utils.problemKey(f) === Utils.problemKey(problem));
   }
 
-  // ─── Recommendation history ────────────────────────────────
-
-  function getHistory() {
-    return _get(KEYS.HISTORY) || [];
-  }
-
-  function addToHistory(entry) {
-    const history = getHistory();
-    history.unshift(entry);
-    // Keep last 20 entries
-    if (history.length > 20) history.length = 20;
-    _set(KEYS.HISTORY, history);
-  }
-
-  function clearHistory() {
-    _set(KEYS.HISTORY, []);
-  }
-
   // ─── User preferences ─────────────────────────────────────
 
   function getPreferences() {
@@ -225,9 +206,6 @@ const Storage = (() => {
     getFavorites,
     toggleFavorite,
     isFavorite,
-    getHistory,
-    addToHistory,
-    clearHistory,
     getPreferences,
     savePreferences,
   };

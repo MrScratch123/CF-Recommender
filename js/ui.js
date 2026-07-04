@@ -20,7 +20,6 @@ const UI = (() => {
     _bindKeyboardShortcuts();
     _checkSharedUrl();
     _renderSavedSets();
-    _renderHistory();
     _renderFavorites();
     _bindStopwatch();
 
@@ -29,8 +28,13 @@ const UI = (() => {
       allProblems = problemsetData.problems;
       allTags = Filters.getAllTags(allProblems);
       _populateTagSelect();
+
+      const handle = document.getElementById('handle-input').value.trim();
+      if (handle) {
+        _handleGenerate();
+      }
     } catch (e) {
-      console.warn("Failed to prefetch tags", e);
+      console.warn("Failed to prefetch tags or generate", e);
     }
   }
 
@@ -176,13 +180,6 @@ const UI = (() => {
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
       document.getElementById('sidebar').classList.remove('sidebar--open');
     });
-
-    // Clear history
-    document.getElementById('btn-clear-history')?.addEventListener('click', () => {
-      Storage.clearHistory();
-      _renderHistory();
-      Utils.showToast('History cleared');
-    });
   }
 
   function _bindKeyboardShortcuts() {
@@ -205,8 +202,6 @@ const UI = (() => {
         _switchTab('saved');
       } else if (e.key === '3') {
         _switchTab('stats');
-      } else if (e.key === '4') {
-        _switchTab('history');
       }
     });
   }
@@ -447,22 +442,6 @@ const UI = (() => {
         _renderEmptyState();
       } else {
         _renderProblemCards(currentProblems, themeTag);
-
-        // Save to history
-        Storage.addToHistory({
-          id: Utils.uid(),
-          timestamp: Date.now(),
-          handle,
-          tag: themeTag,
-          count: currentProblems.length,
-          problems: currentProblems.map(p => ({
-            contestId: p.contestId,
-            index: p.index,
-            name: p.name,
-            rating: p.rating,
-          })),
-        });
-        _renderHistory();
       }
 
       Utils.showToast(`Generated ${currentProblems.length} problem${currentProblems.length !== 1 ? 's' : ''}${themeTag ? ` [${themeTag}]` : ''}`);
@@ -508,7 +487,7 @@ const UI = (() => {
             <a href="${url}" target="_blank" rel="noopener">${p.name}</a>
           </h3>
           <div class="problem-card__meta">
-            <span class="problem-card__year">${year}</span>
+            <span class="problem-card__year">📅 ${year}</span>
             <span class="problem-card__contest">Contest #${p.contestId}</span>
           </div>
           <div class="problem-card__tags">
@@ -687,7 +666,7 @@ const UI = (() => {
             <a href="${url}" target="_blank" rel="noopener">${p.name}</a>
           </h3>
           <div class="problem-card__meta">
-            <span class="problem-card__year">📅 ${year}</span>
+            <span class="problem-card__year">${year}</span>
             <span class="problem-card__contest">Contest #${p.contestId}</span>
           </div>
           <div class="problem-card__tags">
@@ -737,6 +716,7 @@ const UI = (() => {
           </div>
           <div class="saved-set__actions">
             <button class="btn btn--sm btn--primary" onclick="event.stopPropagation(); UI.resumeVirtualSet('${set.id}')" title="Resume Set">Resume</button>
+            <button class="btn btn--sm btn--ghost" onclick="event.stopPropagation(); UI.renameSet('${set.id}')" title="Rename Set">Rename</button>
             <button class="btn btn--sm btn--ghost" onclick="event.stopPropagation(); UI.deleteSet('${set.id}')" title="Delete">Delete</button>
             <span class="saved-set__chevron">▸</span>
           </div>
@@ -760,36 +740,6 @@ const UI = (() => {
     `).join('');
   }
 
-  // ─── Render history ───────────────────────────────────────
-
-  function _renderHistory() {
-    const container = document.getElementById('history-list');
-    const history = Storage.getHistory();
-
-    if (history.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state__icon" style="display:none"></div>
-          <h3>No history yet</h3>
-          <p>Your recent recommendations will appear here.</p>
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = history.map(entry => `
-      <div class="history-entry">
-        <div class="history-entry__time">${new Date(entry.timestamp).toLocaleString()}</div>
-        <div class="history-entry__detail">
-          <strong>${entry.handle}</strong> · ${entry.count} problems
-          ${entry.tag ? `· <span class="tag-chip tag-chip--sm">${entry.tag}</span>` : ''}
-        </div>
-        <div class="history-entry__problems">
-          ${entry.problems.map(p => `<a href="${Utils.problemUrl(p.contestId, p.index)}" target="_blank" class="history-problem">${p.contestId}${p.index}</a>`).join(' ')}
-        </div>
-      </div>
-    `).join('');
-  }
 
   // ─── Render favorites ─────────────────────────────────────
 
@@ -995,6 +945,18 @@ const UI = (() => {
     Utils.showToast('Set deleted');
   }
 
+  function renameSet(setId) {
+    const sets = Storage.getSavedSets();
+    const set = sets.find(s => s.id === setId);
+    if (!set) return;
+    const newName = prompt('Enter new name for the set:', set.name);
+    if (newName && newName.trim()) {
+      Storage.updateSet(setId, { name: newName.trim() });
+      _renderSavedSets();
+      Utils.showToast('Set renamed');
+    }
+  }
+
   async function refreshStats() {
     const handle = document.getElementById('handle-input').value.trim();
     if (!handle) return;
@@ -1063,6 +1025,7 @@ const UI = (() => {
     toggleFav,
     toggleSetExpand,
     deleteSet,
+    renameSet,
     startVirtualSet,
     resumeVirtualSet,
     refreshStats,

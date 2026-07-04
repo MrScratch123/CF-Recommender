@@ -29,7 +29,7 @@ const UI = (() => {
       allProblems = problemsetData.problems;
       allTags = Filters.getAllTags(allProblems);
       _populateTagSelect();
-    } catch(e) {
+    } catch (e) {
       console.warn("Failed to prefetch tags", e);
     }
   }
@@ -295,7 +295,7 @@ const UI = (() => {
         chipsContainer.appendChild(chip);
       }
     }
-    
+
     renderChips(); // Render any initially loaded tags
 
     function addTag(tag) {
@@ -313,7 +313,7 @@ const UI = (() => {
       setTimeout(() => dropdown.style.display = 'none', 100);
     });
     input.addEventListener('input', (e) => renderDropdown(e.target.value));
-    
+
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -338,7 +338,7 @@ const UI = (() => {
         if (current && current.nextElementSibling) {
           current.classList.remove('focused');
           current.nextElementSibling.classList.add('focused');
-          current.nextElementSibling.scrollIntoView({block: 'nearest'});
+          current.nextElementSibling.scrollIntoView({ block: 'nearest' });
         }
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
@@ -346,7 +346,7 @@ const UI = (() => {
         if (current && current.previousElementSibling) {
           current.classList.remove('focused');
           current.previousElementSibling.classList.add('focused');
-          current.previousElementSibling.scrollIntoView({block: 'nearest'});
+          current.previousElementSibling.scrollIntoView({ block: 'nearest' });
         }
       }
     });
@@ -417,17 +417,17 @@ const UI = (() => {
       const isThemeCP = document.getElementById('themecp-toggle').checked;
 
       const filterOptions = {
-          userAnalysis,
-          contestYearMap,
-          yearMin: prefs.yearMin,
-          yearMax: prefs.yearMax,
-          excludeSolved: prefs.excludeSolved,
-          excludeAttempted: prefs.excludeAttempted,
-          excludeContests: prefs.excludeContests,
-          themeTag,
-          includeTags,
-          excludeTags,
-          savedKeys,
+        userAnalysis,
+        contestYearMap,
+        yearMin: prefs.yearMin,
+        yearMax: prefs.yearMax,
+        excludeSolved: prefs.excludeSolved,
+        excludeAttempted: prefs.excludeAttempted,
+        excludeContests: prefs.excludeContests,
+        themeTag,
+        includeTags,
+        excludeTags,
+        savedKeys,
       };
 
       if (isThemeCP) {
@@ -508,7 +508,7 @@ const UI = (() => {
             <a href="${url}" target="_blank" rel="noopener">${p.name}</a>
           </h3>
           <div class="problem-card__meta">
-            <span class="problem-card__year">📅 ${year}</span>
+            <span class="problem-card__year">${year}</span>
             <span class="problem-card__contest">Contest #${p.contestId}</span>
           </div>
           <div class="problem-card__tags">
@@ -617,17 +617,17 @@ const UI = (() => {
       elapsedMs: 0,
       problems: currentProblems.map(p => ({ ...p }))
     };
-    
+
     _switchTab('virtual');
     _renderVirtualSet();
-    
+
     Stopwatch.reset();
     Stopwatch.start();
     const pauseBtn = document.getElementById('btn-virtual-pause');
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     const archBtn = document.getElementById('btn-virtual-archive');
     if (archBtn) archBtn.style.display = 'none';
-    
+
     Utils.showToast('Virtual Set started');
   }
 
@@ -636,10 +636,10 @@ const UI = (() => {
     const set = Storage.getSavedSets().find(s => s.id === setId);
     if (!set) return;
     activeVirtualSet = JSON.parse(JSON.stringify(set));
-    
+
     _switchTab('virtual');
     _renderVirtualSet();
-    
+
     Stopwatch.reset();
     Stopwatch.setElapsedTime(activeVirtualSet.elapsedMs || 0);
     Stopwatch.start();
@@ -647,7 +647,7 @@ const UI = (() => {
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     const archBtn = document.getElementById('btn-virtual-archive');
     if (archBtn) archBtn.style.display = 'none';
-    
+
     Utils.showToast('Virtual Set resumed');
   }
 
@@ -744,16 +744,16 @@ const UI = (() => {
         <div class="saved-set__body" id="set-body-${set.id}">
           <div class="saved-set__problems">
             ${set.problems.map(p => {
-              const url = Utils.problemUrl(p.contestId, p.index);
-              const ratingClass = Utils.ratingColor(p.rating);
-              const isSolved = userAnalysis && userAnalysis.solved.has(Utils.problemKey(p));
-              return `
+      const url = Utils.problemUrl(p.contestId, p.index);
+      const ratingClass = Utils.ratingColor(p.rating);
+      const isSolved = userAnalysis && userAnalysis.solved.has(Utils.problemKey(p));
+      return `
                 <div class="saved-problem-row ${isSolved ? 'saved-problem-row--solved' : ''}">
                   <a href="${url}" target="_blank" class="saved-problem-row__name">${p.contestId}${p.index} — ${p.name}</a>
                   <span class="saved-problem-row__rating ${ratingClass}">${p.rating}</span>
                 </div>
               `;
-            }).join('')}
+    }).join('')}
           </div>
         </div>
       </div>
@@ -942,7 +942,7 @@ const UI = (() => {
         if (data.preferences) localStorage.setItem('cf_rec_prefs', JSON.stringify(data.preferences));
         if (data.savedSets) localStorage.setItem('cf_rec_saved_sets', JSON.stringify(data.savedSets));
         if (data.favorites) localStorage.setItem('cf_rec_favs', JSON.stringify(data.favorites));
-        
+
         Utils.showToast('Data imported successfully. Reloading...');
         setTimeout(() => location.reload(), 1000);
       } catch (err) {
@@ -1003,7 +1003,7 @@ const UI = (() => {
       const submissions = await API.fetchUserSubmissions(handle, true);
       userAnalysis = Filters.analyzeSubmissions(submissions);
       _renderUserSummary(handle, userAnalysis);
-      
+
       if (currentProblems.length > 0) {
         _renderProblemCards(currentProblems, currentThemeTag);
       }
@@ -1033,7 +1033,7 @@ const UI = (() => {
     document.getElementById('btn-virtual-archive')?.addEventListener('click', () => {
       if (!activeVirtualSet) return;
       activeVirtualSet.elapsedMs = Stopwatch.getElapsedMs();
-      
+
       const sets = Storage.getSavedSets();
       const existingIdx = sets.findIndex(s => s.id === activeVirtualSet.id);
       if (existingIdx >= 0) {
@@ -1042,7 +1042,7 @@ const UI = (() => {
       } else {
         Storage.saveSet(activeVirtualSet);
       }
-      
+
       Stopwatch.reset();
       activeVirtualSet = null;
       _renderVirtualSet();

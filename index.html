@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Intelligent Codeforces problem recommendations. Filter by rating, tags, year, and more.">
+  <title>CF Recommender — Smart Practice Problems</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="icon" href="https://codeforces.org/s/0/favicon-32x32.png">
+</head>
+
+<body>
+
+  <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app">
+    <!-- ─── Sidebar ──────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="logo">
+          <img src="https://codeforces.org/s/0/favicon-32x32.png" alt="CF Logo" class="logo__icon"
+            style="width: 24px; height: 24px;">
+          <div>
+            <div class="logo__text">CF Recommender</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Handle -->
+      <div class="field">
+        <label class="field__label" for="handle-input">CF Handle</label>
+        <input type="text" id="handle-input" placeholder="e.g. tourist" autocomplete="off" spellcheck="false">
+      </div>
+
+
+      <!-- Generation Mode -->
+      <div class="section-title">Generation Mode</div>
+      <label class="checkbox">
+        <input type="checkbox" id="themecp-toggle" checked> Use ThemeCP Levels
+      </label>
+
+      <!-- Level (ThemeCP system) -->
+      <div class="field" id="field-level">
+        <label class="field__label" for="level-input">Level <span style="opacity:.5">(1–109)</span></label>
+        <input type="number" id="level-input" value="10" min="1" max="109" step="1">
+        <div class="level-preview" id="level-preview"></div>
+      </div>
+
+      <!-- Custom Settings (Hidden by default) -->
+      <div id="custom-group" style="display:none; margin-top: 16px;">
+        <div class="field">
+          <label class="field__label">Rating Range</label>
+          <div class="range-row">
+            <input type="number" id="rating-min" value="1200" step="100">
+            <span>to</span>
+            <input type="number" id="rating-max" value="1500" step="100">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="problem-count">Number of Problems</label>
+          <input type="number" id="problem-count" value="4" min="1" max="10">
+        </div>
+      </div>
+
+      <!-- Year range -->
+      <div class="field">
+        <label class="field__label">Year Range</label>
+        <div class="range-row">
+          <input type="number" id="year-min" value="2020" min="2010" max="2026">
+          <span>to</span>
+          <input type="number" id="year-max" value="2026" min="2010" max="2026">
+        </div>
+      </div>
+
+      <!-- Exclusions -->
+      <div class="section-title">Exclusions</div>
+      <label class="checkbox">
+        <input type="checkbox" id="exclude-solved" checked> Exclude solved problems
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="exclude-attempted"> Exclude attempted (unsolved)
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="exclude-contests" checked> Exclude my contests
+      </label>
+
+      <!-- Tags -->
+      <div class="section-title">Tags</div>
+      <div class="field" style="margin-bottom: 8px;">
+        <label class="radio">
+          <input type="radio" name="theme-mode" value="mixed" checked> Any tags
+        </label>
+        <label class="radio">
+          <input type="radio" name="theme-mode" value="random"> Random tag
+        </label>
+        <label class="radio">
+          <input type="radio" name="theme-mode" value="custom"> Custom tags
+        </label>
+      </div>
+      <div id="tag-select-group" style="display:none; flex-direction:column; gap:8px;">
+        <div class="field">
+          <label class="field__label">Include Tags</label>
+          <div class="chip-input" id="chip-input-include">
+            <input type="text" id="input-include" class="chip-input__input" placeholder="Add tag...">
+            <div class="chip-input__dropdown" id="dropdown-include"></div>
+          </div>
+          <div id="chips-include" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
+        </div>
+        <div class="field">
+          <label class="field__label">Exclude Tags</label>
+          <div class="chip-input" id="chip-input-exclude">
+            <input type="text" id="input-exclude" class="chip-input__input" placeholder="Add tag...">
+            <div class="chip-input__dropdown" id="dropdown-exclude"></div>
+          </div>
+          <div id="chips-exclude" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Display Options -->
+      <div class="section-title">Display Options</div>
+      <label class="checkbox" style="margin-bottom: 16px;">
+        <input type="checkbox" id="show-tags-toggle" checked> Show problem tags
+      </label>
+
+      <!-- Generate -->
+      <button class="btn btn--primary btn--full" id="btn-generate">Generate</button>
+
+      <!-- Export / Import -->
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px;">
+        <button class="btn btn--secondary btn--sm" id="btn-export-data" style="flex:1">Export Data</button>
+        <button class="btn btn--secondary btn--sm" id="btn-import-data" style="flex:1">Import Data</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none;">
+      </div>
+    </aside>
+
+    <!-- ─── Main content ────────────── -->
+    <main class="main">
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab-btn tab-btn--active" data-tab="recommend">Recommend</button>
+        <button class="tab-btn" data-tab="virtual">Virtual Set</button>
+        <button class="tab-btn" data-tab="saved">Saved Sets</button>
+        <button class="tab-btn" data-tab="stats">Statistics</button>
+        <button class="tab-btn" data-tab="history">History</button>
+        <button class="tab-btn" data-tab="favorites">Favorites</button>
+      </nav>
+
+      <!-- User summary -->
+      <div class="user-summary" id="user-summary"></div>
+
+      <!-- ─── Tab: Recommend ──────── -->
+      <div class="tab-panel tab-panel--active" id="tab-recommend">
+        <div id="theme-label" style="display:none"></div>
+
+        <div class="result-actions" id="result-actions">
+          <button class="btn btn--secondary btn--sm" id="btn-regenerate">Regenerate</button>
+          <button class="btn btn--primary btn--sm" id="btn-start-set">Start Virtual Set</button>
+          <button class="btn btn--secondary btn--sm" id="btn-save-set">Save Set</button>
+        </div>
+
+        <div class="loading-spinner" id="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+
+        <div class="problem-cards" id="problem-cards">
+          <div class="welcome-hero">
+            <img src="https://codeforces.org/s/0/favicon-32x32.png" alt="CF Logo"
+              style="width: 48px; height: 48px; margin-bottom: 16px;">
+            <h1 class="welcome-hero__title">Problem Recommendations</h1>
+            <p class="welcome-hero__sub">Enter your Codeforces handle, configure filters, and hit Generate. This will
+              find
+              the random practice problems for you based on settings.</p>
+            <div class="welcome-hero__shortcuts">
+              <span class="shortcut-badge"><kbd>G</kbd> Generate</span>
+              <span class="shortcut-badge"><kbd>S</kbd> Save set</span>
+              <span class="shortcut-badge"><kbd>E</kbd> Export</span>
+              <span class="shortcut-badge"><kbd>1-5</kbd> Switch tabs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Tab: Virtual Set ────── -->
+      <div class="tab-panel" id="tab-virtual">
+        <div style="display:flex; justify-content:space-between; margin-bottom: 16px; align-items:center;">
+          <h2 style="font-size: 1.4rem; font-weight: 600;">Active Virtual Set</h2>
+          <div class="virtual-controls" id="virtual-controls" style="display:none; align-items:center; gap:12px;">
+            <div class="stopwatch__display" id="stopwatch-display"
+              style="font-size: 1.4rem; font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums;">
+              00:00:00.00</div>
+            <button class="btn btn--sm btn--primary" id="btn-virtual-pause">Pause</button>
+            <button class="btn btn--sm btn--secondary" id="btn-virtual-archive" style="display:none;">Archive</button>
+          </div>
+        </div>
+        <div class="problem-cards" id="virtual-problem-cards">
+          <div class="empty-state">
+            <div class="empty-state__icon" style="display:none"></div>
+            <h3>No active set</h3>
+            <p>Generate recommendations and click "Start Virtual Set" to begin.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Tab: Saved Sets ─────── -->
+      <div class="tab-panel" id="tab-saved">
+        <div id="saved-sets-list"></div>
+      </div>
+
+      <!-- ─── Tab: Statistics ─────── -->
+      <div class="tab-panel" id="tab-stats">
+        <div id="stats-content">
+          <div class="empty-state">
+            <div class="empty-state__icon" style="display:none"></div>
+            <h3>Enter your handle</h3>
+            <p>Generate recommendations first, then view your statistics here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Tab: History ────────── -->
+      <div class="tab-panel" id="tab-history">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn--ghost btn--sm" id="btn-clear-history">Clear History</button>
+        </div>
+        <div id="history-list"></div>
+      </div>
+
+      <!-- ─── Tab: Favorites ──────── -->
+      <div class="tab-panel" id="tab-favorites">
+        <div id="favorites-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts (order matters: utils → storage → api → filters → recommender → stats → ui) -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/recommender.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/stopwatch.js"></script>
+  <script src="js/ui.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => UI.init());</script>
+</body>
+
+</html>

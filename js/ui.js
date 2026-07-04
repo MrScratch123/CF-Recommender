@@ -831,7 +831,7 @@ const UI = (() => {
     if (!handle) {
       document.getElementById('stats-content').innerHTML = `
         <div class="empty-state">
-          <div class="empty-state__icon">📊</div>
+          <div class="empty-state__icon" style="display:none"></div>
           <h3>Enter your handle</h3>
           <p>We need your handle to compute statistics. Enter it in the sidebar and generate recommendations first.</p>
         </div>
@@ -845,23 +845,23 @@ const UI = (() => {
 
       document.getElementById('stats-content').innerHTML = `
         <div class="stats-section">
-          <h3 class="stats-section__title">📈 Problems Solved by Rating</h3>
+          <h3 class="stats-section__title">Problems Solved by Rating</h3>
           <div class="chart-container">
             <canvas id="chart-rating" width="600" height="280"></canvas>
           </div>
         </div>
         <div class="stats-section">
-          <h3 class="stats-section__title">🏷️ Problems Solved by Tag</h3>
+          <h3 class="stats-section__title">Problems Solved by Tag</h3>
           <div class="chart-container chart-container--tall">
             <canvas id="chart-tags" width="600" height="500"></canvas>
           </div>
         </div>
         <div class="stats-section">
-          <h3 class="stats-section__title">⚠️ Weakest Tags (solve/attempt ratio)</h3>
+          <h3 class="stats-section__title">Weakest Tags (solve/attempt ratio)</h3>
           <div id="weakness-container" class="weakness-container"></div>
         </div>
         <div class="stats-section">
-          <h3 class="stats-section__title">🔥 Practice Heatmap (Last 365 Days)</h3>
+          <h3 class="stats-section__title">Practice Heatmap (Last 365 Days)</h3>
           <div id="heatmap-container" class="heatmap-container"></div>
         </div>
       `;
@@ -882,7 +882,7 @@ const UI = (() => {
       console.error('Stats error:', err);
       document.getElementById('stats-content').innerHTML = `
         <div class="empty-state">
-          <div class="empty-state__icon">❌</div>
+          <div class="empty-state__icon" style="display:none"></div>
           <h3>Error loading stats</h3>
           <p>${err.message}</p>
         </div>

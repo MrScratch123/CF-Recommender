@@ -249,8 +249,15 @@ const Stats = (() => {
         const day = week[row];
         if (day) {
           const count = heatmapData[day] || 0;
-          const intensity = count === 0 ? 0 : Math.ceil((count / maxCount) * 4);
-          cell.setAttribute('data-level', intensity);
+          if (count === 0) {
+            cell.setAttribute('data-level', 0);
+          } else {
+            const f = count / maxCount;
+            const r = Math.round(144 - 144 * f);
+            const g = Math.round(238 - 138 * f);
+            const b = Math.round(144 - 144 * f);
+            cell.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+          }
           cell.title = `${day}: ${count} problem${count !== 1 ? 's' : ''} solved`;
         } else {
           cell.setAttribute('data-level', -1);
@@ -265,13 +272,21 @@ const Stats = (() => {
     // Legend
     const legend = document.createElement('div');
     legend.className = 'heatmap-legend';
+    
+    // Light green to dark green interpolation values for legend
+    // f = 0.25, 0.5, 0.75, 1.0
+    const c1 = `rgb(108, 204, 108)`;
+    const c2 = `rgb(72, 169, 72)`;
+    const c3 = `rgb(36, 135, 36)`;
+    const c4 = `rgb(0, 100, 0)`;
+
     legend.innerHTML = `
       <span>Less</span>
       <div class="heatmap-cell" data-level="0"></div>
-      <div class="heatmap-cell" data-level="1"></div>
-      <div class="heatmap-cell" data-level="2"></div>
-      <div class="heatmap-cell" data-level="3"></div>
-      <div class="heatmap-cell" data-level="4"></div>
+      <div class="heatmap-cell" style="background-color: ${c1}"></div>
+      <div class="heatmap-cell" style="background-color: ${c2}"></div>
+      <div class="heatmap-cell" style="background-color: ${c3}"></div>
+      <div class="heatmap-cell" style="background-color: ${c4}"></div>
       <span>More</span>
     `;
     container.appendChild(legend);

@@ -1,7 +1,7 @@
 # CF-Recommender
-A simple cf problem reccomender inspired from ThemeCP that covers QOL features missing in other recommendation systems.
+A simple cf problem reccomender inspired from ThemeCP that covers QOL features missing in other recommendation systems, adjusted to feel less like a contest and more like timed practice.
 
-![alt text](image.png)
+<img width="1920" height="938" alt="image" src="https://github.com/user-attachments/assets/a2af82ad-0374-464a-933d-65233ea4c050" />
 
 ## Features
 * Create Problem Sets based on parameters -> year range, include & exclude tags, and choose rating.

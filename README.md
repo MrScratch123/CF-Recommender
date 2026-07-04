@@ -1,12 +1,12 @@
 # CF-Recommender
-A simple cf problem reccomender that covers QOL features missing in other recommendation systems.
+A simple cf problem reccomender inspired from ThemeCP that covers QOL features missing in other recommendation systems.
 
 ![alt text](image.png)
 
 ## Features
-* Create Problem Sets based on parameters -> year range, include exclude tags, and rating.
+* Create Problem Sets based on parameters -> year range, include & exclude tags, and choose rating.
 * Choice between ThemeCP Levels or a rating range and number of problems
-* Starting Virtual Set with a stopwatch.
+* Start Virtual Set with a stopwatch.
 * Pause and archive the set anytime, and resume it when you deem fit.
 * Show or hide tags.
 
